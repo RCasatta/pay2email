@@ -1,0 +1,6 @@
+This favicon was generated using the following font:
+
+- Font Title: Mada
+- Font Author: Copyright  2015-2016 The Mada Project Authors, with Reserved Font Name "Source". Source is a trademark of Adobe Systems Incorporated in the United States and/or other countries.
+- Font Source: http://fonts.gstatic.com/s/mada/v11/7Auwp_0qnzeSTTXMLCrX0kU.ttf
+- Font License: SIL Open Font License, 1.1 (http://scripts.sil.org/OFL))

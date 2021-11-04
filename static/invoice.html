@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/pico.min.css">
+    <title>Invoice</title>
+</head>
+<body>
+
+<section class="container">
+    <article>
+        {{ BACK_TO }}
+        <p>Reply to: <i>{{ REPLY_TO }}</i></p>
+        <p>Message: <i>{{ MESSAGE }}</i></p>
+        <p style="text-align: center;">
+            <mark id="message"></mark>
+        </p>
+        <figure style="text-align: center;">
+            <img src="{{ QR }}" alt="lightning invoice">
+        </figure>
+        <figcaption >
+            <small style="word-wrap: break-word;">{{ INVOICE }}</small>
+        </figcaption>
+    </article>
+</section>
+
+<script>
+    async function fetchInfo(payment_hash) {
+        const response = await fetch('/info', { body: payment_hash, method: "POST", headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }})
+        const result = await response.json()
+        return result
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => {
+            console.log(`waiting ${ms} ms...`);
+            setTimeout(resolve, ms)
+        });
+    }
+
+    async function process(payment_hash) {
+        fetchInfo(paymentHash).then(function(response) {
+            console.log(response)
+            const message = document.getElementById("message");
+            if(response.hasOwnProperty('error')) {
+                message.style.display = "unset"
+                message.innerHTML = "Error"
+            } else {
+                if (response.invoice_paid || response.email_sent)  {
+                    message.style.display = "unset"
+                    if(response.email_sent) {
+                        message.innerHTML = "Invoice paid, email sent!"
+                    } else {
+                        message.innerHTML = "Invoice paid, sending email..."
+                        sleep(1000).then(function() { process(paymentHash) })
+                    }
+                } else {
+                    message.style.display = "none"
+                    sleep(1000).then(function() { process(paymentHash) })
+                }
+            }
+        })
+    }
+
+    const paymentHash = "{{ PAYMENT_HASH }}"
+    process(paymentHash)
+
+</script>
+
+</body>
+</html>
