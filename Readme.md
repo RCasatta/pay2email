@@ -1,4 +1,21 @@
 
+# Architecture
+
+This service sends email if a bitcoin [lightning](https://lightning.network) invoice is paid.
+
+The main use case is providing spam-free contact form for sites. 
+
+This repository contains the code to run your own service but you can also access the feature by
+using https://pay2.email which runs this code in the backend.
+
+To run the service two components are necessary:
+
+* The application server serving the endpoint to collect email information and present an invoice for sending an email.
+* A [core lightning](https://github.com/ElementsProject/lightning) node with the 2 plugins contained in the [node-side](https://github.com/RCasatta/pay2email/tree/master/node-side) directory.
+  * the `upload_invoices.py` plugin periodically poll the application server and upload fresh invoices when those are used or expired. It has been preferred to poll the application server for security reasons instead of letting the application server contacts the node directly
+  * the `on_pay.py` plugin contacts the application server when an invoice is paid so that the relative email is sent
+
+
 # TODO
 
 * USE human readable age in encryption (support "e" as backward compatible)
