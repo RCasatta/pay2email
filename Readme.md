@@ -16,13 +16,6 @@ To run the service two components are necessary:
   * the `on_pay.py` plugin contacts the application server when an invoice is paid so that the relative email is sent
 
 
-# TODO
-
-* USE human readable age in encryption (support "e" as backward compatible)
-* go back to referrer or provided option
-* save time taken to send email
-* option to recover and send email for payed but not sent
-
 # Testing
 ```
 PROTO=http
