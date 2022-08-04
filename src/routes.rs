@@ -42,7 +42,7 @@ impl<'r> FromRequest<'r> for HttpAuth {
 #[post("/invoice", data = "<bolt11>")]
 async fn invoice_add(db: Db, bolt11: String, _auth: HttpAuth) -> Result<Created<Json<InvoiceRow>>> {
     let invoice: Invoice = bolt11.parse()?;
-    let time = *invoice.timestamp() + invoice.expiry_time();
+    let time = invoice.timestamp() + invoice.expiry_time();
     let expiration =
         NaiveDateTime::from_timestamp(time.duration_since(UNIX_EPOCH).unwrap().as_secs() as i64, 0);
 
