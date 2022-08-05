@@ -17,6 +17,13 @@ To run the service two components are necessary:
 
 
 # Testing
+
+Test launch
+
+```shell
+SMTP_PASSWORD=x SMTP_PROVIDER=x AGE_SECRET_KEY=x HTTP_AUTH_BASIC=x cargo run
+```
+
 ```
 PROTO=http
 HOST=localhost:8000
