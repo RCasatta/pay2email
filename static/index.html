@@ -38,11 +38,11 @@
 
     <em>&lt;!-- The recipient is encrypted with the server key, paste in field "value" what you get from --&gt;</em>
     <em>&lt;!-- curl -d "recipient@example.com" https://pay2.email/encrypt --&gt;</em>
-    &lt;<b>input</b> <i>type</i>=<u>"hidden"</u> <i>id</i>=<u>"to_enc"</u> <i>value</i>=<u>"e1v9nk2tt9de3hy7ts..."</u>&gt;
+    &lt;<b>input</b> <i>type</i>=<u>"hidden"</u> <i>name</i>=<u>"to_enc"</u> <i>value</i>=<u>"e1v9nk2tt9de3hy7ts..."</u>&gt;
 
     <em>&lt;!-- Also the subject is encrypted with the server key --&gt;</em>
     <em>&lt;!-- curl -d "From pay2.email contact form" https://pay2.email/encrypt --&gt;</em>
-    &lt;<b>input</b> <i>type</i>=<u>"hidden"</u> <i>id</i>=<u>"subject_enc"</u> <i>value</i>=<u>"e1de3hy7v9de3hy7..."</u>&gt;
+    &lt;<b>input</b> <i>type</i>=<u>"hidden"</u> <i>name</i>=<u>"subject_enc"</u> <i>value</i>=<u>"e1de3hy7v9de3hy7..."</u>&gt;
 
     &lt;<b>button</b> <i>type</i>=<u>"submit"</u>&gt;Pay 20 satoshi ⚡ to send&lt;/<b>button</b>&gt;
 
