@@ -70,6 +70,12 @@ async fn invoice_count(db: Db, _auth: HttpAuth) -> Result<Json<i64>> {
     Ok(Json(InvoiceRow::count_available(&db).await?))
 }
 
+/// Returns email sent
+#[get("/email/sent")]
+async fn email_sent(db: Db, _auth: HttpAuth) -> Result<Json<i64>> {
+    Ok(Json(EmailRow::count_sent(&db).await?))
+}
+
 /// Set the invoice to paid, send the email
 #[post("/invoice/paid", data = "<preimage>")]
 async fn invoice_paid(db: Db, preimage: String, _auth: HttpAuth) -> Result<Json<InvoiceRow>> {
@@ -333,7 +339,14 @@ pub fn stage() -> AdHoc {
             .attach(AdHoc::on_ignite("Diesel Migrations", run_migrations))
             .mount(
                 "/",
-                routes![invoice_count, invoice_add, invoice_paid, email, info],
+                routes![
+                    invoice_count,
+                    invoice_add,
+                    invoice_paid,
+                    email,
+                    info,
+                    email_sent
+                ],
             )
     })
 }

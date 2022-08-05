@@ -174,6 +174,18 @@ impl EmailRow {
         self.sent = true;
         Ok(())
     }
+
+    /// Count sent email
+    pub async fn count_sent(db: &Db) -> Result<i64> {
+        Ok(db
+            .run(move |conn| {
+                emails::table
+                    .select(count(emails::id))
+                    .filter(emails::sent.eq(true))
+                    .first(conn)
+            })
+            .await?)
+    }
 }
 
 pub async fn run_migrations(rocket: Rocket<Build>) -> Rocket<Build> {
