@@ -6,7 +6,7 @@ use crate::{qr, Db, Error};
 use bitcoin_hashes::hex::{FromHex, ToHex};
 use bitcoin_hashes::{sha256, Hash};
 use chrono::NaiveDateTime;
-use lettre::message::Mailbox;
+use lettre::message::{Mailbox, Mailboxes};
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::transport::smtp::client::{Tls, TlsParameters};
 use lettre::{AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor};
@@ -125,8 +125,10 @@ async fn info(db: Db, payment_hash: String) -> Option<Json<Info>> {
 pub(crate) async fn send_email(email_row: &EmailRow) -> Result<()> {
     let mut builder = Message::builder()
         .from("Pay2.email <noreply@pay2.email>".parse()?)
-        .to(email_row.to_email.parse()?)
         .subject(&email_row.subject);
+    for mbox in email_row.to_email.parse::<Mailboxes>()?.into_iter() {
+        builder = builder.to(mbox);
+    }
     if let Some(reply_to) = email_row.reply_to_email.as_ref() {
         builder = builder.reply_to(reply_to.parse()?)
     }
@@ -349,4 +351,29 @@ pub fn stage() -> AdHoc {
                 ],
             )
     })
+}
+
+#[cfg(test)]
+mod test {
+    use lettre::message::{Mailbox, Mailboxes};
+
+    #[test]
+    fn test_parse() {
+        let s = "mail@example.com";
+        assert!(s.parse::<Mailbox>().is_ok());
+
+        let s = "mail@example.com ";
+        assert!(s.parse::<Mailbox>().is_err());
+
+        let s = "mail@example.com ";
+        assert!(s.trim().parse::<Mailbox>().is_ok());
+
+        let s = "mail@example.com, another@asa.it";
+        let mbs = s.trim().parse::<Mailboxes>();
+        assert!(mbs.is_ok());
+
+        let s = "mail@example.com";
+        let mbs = s.trim().parse::<Mailboxes>();
+        assert!(mbs.is_ok());
+    }
 }
