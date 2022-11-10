@@ -160,10 +160,10 @@ pub struct SendData<'r> {
     message: &'r str,
 
     /// Email recipient in clear text, use `to_enc` for encrypted version
-    to: Option<EMail>,
+    to: Option<EMails>,
 
     /// Encrypted recipient
-    to_enc: Option<Encrypted<EMail>>,
+    to_enc: Option<Encrypted<EMails>>,
 
     /// Email subkect in clear text, use `subject_enc` for encrypted version
     subject: Option<String>,
@@ -177,6 +177,9 @@ struct Encrypted<T>(pub T);
 
 #[derive(Debug)]
 struct EMail(Mailbox);
+
+#[derive(Debug)]
+struct EMails(Mailboxes);
 
 #[rocket::async_trait]
 impl<'r> FromFormField<'r> for EMail {
@@ -203,6 +206,38 @@ impl<'r> FromFormField<'r> for Encrypted<EMail> {
             .parse()
             .map_err(|e| form::Error::validation(format!("Cannot parse v: {:?}", e)))?;
         Ok(Encrypted(EMail(m)))
+    }
+
+    async fn from_data(_field: DataField<'r, '_>) -> form::Result<'r, Self> {
+        todo!("async not implemented yet")
+    }
+}
+
+#[rocket::async_trait]
+impl<'r> FromFormField<'r> for EMails {
+    fn from_value(field: ValueField<'r>) -> form::Result<'r, Self> {
+        let m: Mailboxes = field
+            .value
+            .parse()
+            .map_err(|e| form::Error::validation(format!("Cannot parse email: {:?}", e)))?;
+        Ok(EMails(m))
+    }
+
+    async fn from_data(_field: DataField<'r, '_>) -> form::Result<'r, Self> {
+        todo!("async not implemented yet")
+    }
+}
+
+#[rocket::async_trait]
+impl<'r> FromFormField<'r> for Encrypted<EMails> {
+    fn from_value(field: ValueField<'r>) -> form::Result<'r, Self> {
+        let decrypted_value = decrypt(field.value).map_err(|e| {
+            form::Error::validation(format!("Cannot decrypt email field: {:?} ", e))
+        })?;
+        let m: Mailboxes = decrypted_value
+            .parse()
+            .map_err(|e| form::Error::validation(format!("Cannot parse v: {:?}", e)))?;
+        Ok(Encrypted(EMails(m)))
     }
 
     async fn from_data(_field: DataField<'r, '_>) -> form::Result<'r, Self> {
