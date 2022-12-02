@@ -66,7 +66,7 @@ async fn invoice_add(db: Db, bolt11: String, _auth: HttpAuth) -> Result<Created<
 
 /// Returns all the invoices available, checking they are not expired or near expiration
 #[get("/invoice/count")]
-async fn invoice_count(db: Db, _auth: HttpAuth) -> Result<Json<i64>> {
+async fn invoice_count(db: Db) -> Result<Json<i64>> {
     Ok(Json(InvoiceRow::count_available(&db).await?))
 }
 
