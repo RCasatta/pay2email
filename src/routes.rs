@@ -70,6 +70,12 @@ async fn invoice_count(db: Db) -> Result<Json<i64>> {
     Ok(Json(InvoiceRow::count_available(&db).await?))
 }
 
+/// Returns true if there are more than 10 invoices
+#[get("/invoice/count/enough")]
+async fn invoice_enough(db: Db) -> Result<Json<bool>> {
+    Ok(Json(InvoiceRow::count_available(&db).await? > 10))
+}
+
 /// Returns email sent
 #[get("/email/sent")]
 async fn email_sent(db: Db, _auth: HttpAuth) -> Result<Json<i64>> {
@@ -384,6 +390,7 @@ pub fn stage() -> AdHoc {
                 "/",
                 routes![
                     invoice_count,
+                    invoice_enough,
                     invoice_add,
                     invoice_paid,
                     email,
