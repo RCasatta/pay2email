@@ -324,21 +324,27 @@ async fn email(
         return Err(Error::EmptyMessage);
     }
 
-    let invoice = InvoiceRow::get_first_available(&db).await?;
+    let mut invoices = InvoiceRow::list_available_invoices(&db, 10).await?;
+    let message = data.message.to_string();
+    let reply_to = data.reply_to.as_ref().map(|e| e.0.to_string());
 
-    let email_row = EmailRow {
-        id: None,
-        payment_hash: invoice.id.to_string(),
-        reply_to_email: data.reply_to.as_ref().map(|e| e.0.to_string()),
-        to_email: to.0.to_string(),
-        subject: subject.to_string(),
-        message: data.message.to_string(),
-        sent: false,
+    let invoice = loop {
+        let mut invoice = invoices.pop().ok_or_else(|| Error::InvoiceNotFound)?;
+        let email_row = EmailRow {
+            id: None,
+            payment_hash: invoice.id.to_string(),
+            reply_to_email: reply_to.clone(),
+            to_email: to.0.to_string(),
+            subject: subject.to_string(),
+            message: message.clone(),
+            sent: false,
+        };
+
+        if let Ok(_) = EmailRow::add(&db, email_row).await {
+            invoice.set_showed(&db).await?;
+            break invoice;
+        }
     };
-
-    let message = email_row.message.clone();
-    let reply_to = email_row.reply_to_email.clone();
-    EmailRow::add(&db, email_row).await?;
 
     if encoding.0.is_json() {
         let json_result = JsonResult {

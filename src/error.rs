@@ -32,6 +32,7 @@ pub enum Error {
     OnlyOneSubject,
     EmptyMessage,
     Unauthorized,
+    InvoiceNotFound,
 }
 
 impl From<serde_json::Error> for Error {

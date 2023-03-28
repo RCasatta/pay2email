@@ -82,27 +82,17 @@ impl InvoiceRow {
 
     /// Return the id of an invoice (payment hash) which is not payed, not expired and not showed
     /// before. Set it to showed
-    pub async fn get_first_available(db: &Db) -> Result<InvoiceRow> {
-        let mut invoice: InvoiceRow = db
+    pub async fn list_available_invoices(db: &Db, limit: i64) -> Result<Vec<InvoiceRow>> {
+        Ok(db
             .run(move |conn| {
                 invoices::table
                     .filter(invoices::showed.eq(false))
                     .filter(invoices::paid.eq(false))
                     .filter(invoices::expiration.gt(max_expiration()))
-                    .first::<InvoiceRow>(conn)
+                    .limit(limit)
+                    .load::<InvoiceRow>(conn)
             })
-            .await?;
-
-        let invoice_cloned = invoice.clone();
-        db.run(move |conn| {
-            diesel::update(&invoice_cloned)
-                .set(invoices::showed.eq(true))
-                .execute(conn)
-        })
-        .await?;
-        invoice.showed = true;
-
-        Ok(invoice)
+            .await?)
     }
 
     /// List all available invoices, never showed, nor paid, nor expired
@@ -129,6 +119,19 @@ impl InvoiceRow {
         })
         .await?;
         self.paid = true;
+        Ok(())
+    }
+
+    /// Set the showed flag to true
+    pub async fn set_showed(&mut self, db: &Db) -> Result<()> {
+        let cloned = self.clone();
+        db.run(move |conn| {
+            diesel::update(&cloned)
+                .set(invoices::showed.eq(true))
+                .execute(conn)
+        })
+        .await?;
+        self.showed = true;
         Ok(())
     }
 }
