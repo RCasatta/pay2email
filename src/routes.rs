@@ -361,7 +361,10 @@ async fn email(
         };
         return Ok((encoding.0, serde_json::to_string(&json_result)?));
     } else if encoding.0.is_html() {
-        let qr = qr::create_bmp_base64_qr(&invoice.bolt11.to_ascii_uppercase())?;
+        let qr = qr::create_bmp_base64_qr(&format!(
+            "lightning:{}",
+            invoice.bolt11.to_ascii_uppercase()
+        ))?;
         let link = format!("lightning:{}", &invoice.bolt11);
         let mut template = include_str!("../static/invoice.html").to_string();
         if let Some(str) = referer.0.as_ref() {
