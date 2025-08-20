@@ -6,7 +6,8 @@ use qr_code::bmp_monochrome::BmpError;
 use qr_code::types::QrError;
 use rocket::http::{ContentType, Status};
 use rocket::response::Responder;
-use rocket::Request;
+use rocket::{Request, Response};
+use std::io;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -110,6 +111,10 @@ impl From<diesel::result::Error> for Error {
 impl<'r> Responder<'r, 'static> for Error {
     fn respond_to(self, _request: &'r Request<'_>) -> rocket::response::Result<'static> {
         println!("{:?}", self);
-        Err(Status::ImATeapot)
+        let body = "Pay2Email service has been discontinued";
+        Response::build()
+            .status(Status::ServiceUnavailable)
+            .sized_body(Some(body.len()), io::Cursor::new(body))
+            .ok()
     }
 }
